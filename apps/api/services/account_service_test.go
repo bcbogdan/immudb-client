@@ -17,8 +17,8 @@ func setup() {
 }
 
 func TestAccountNumberUniqueness(t *testing.T) {
-	ledgerName := "default"
-	collectionName := "test"
+	collectionName := os.Getenv("IMMUDB_COLLECTION_NAME")
+	ledgerName := os.Getenv("IMMUDB_LEDGER_NAME")
 	apiKey := os.Getenv("IMMUDB_API_KEY")
 	immudbVaultClient := common.NewImmudbVaultClient(apiKey)
 	accountService := NewAccountService(immudbVaultClient, collectionName, ledgerName)

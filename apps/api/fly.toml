@@ -1,0 +1,26 @@
+# fly.toml app configuration file generated for immudb-vault-api on 2024-07-23T17:52:57+03:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'immudb-vault-api'
+primary_region = 'otp'
+
+[build]
+
+[env]
+  IMMUDB_COLLECTION_NAME = 'test'
+  IMMUDB_LEDGER_NAME = 'default'
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  memory = '512mb'
+  cpu_kind = 'shared'
+  cpus = 1

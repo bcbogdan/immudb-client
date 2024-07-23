@@ -25,9 +25,9 @@ func setupRouter() *gin.Engine {
 		c.String(http.StatusOK, "ok")
 	})
 
-	ledgerName := "default"
-	collectionName := "test"
 	apiKey := os.Getenv("IMMUDB_API_KEY")
+	collectionName := os.Getenv("IMMUDB_COLLECTION_NAME")
+	ledgerName := os.Getenv("IMMUDB_LEDGER_NAME")
 	immudbVaultClient := common.NewImmudbVaultClient(apiKey)
 	accountService := services.NewAccountService(immudbVaultClient, collectionName, ledgerName)
 
