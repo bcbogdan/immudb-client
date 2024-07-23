@@ -28,7 +28,7 @@ type SearchAccountingInformationPagination struct {
 
 type SearchAccountingInformationFilters struct {
 	Field    string `json:"field" binding:"required,oneof=accountNumber accountName iban address type amount"`
-	Operator string `json:"operator" binding:"required,oneof=eq neq gt gte lt lte"`
+	Operator string `json:"operator" binding:"required,oneof=EQ NEQ GE GT LT LE LIKE"`
 	Value    string `json:"value" binding:"required"`
 }
 

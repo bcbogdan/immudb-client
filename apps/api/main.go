@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -15,6 +16,9 @@ func setupRouter() *gin.Engine {
 	// gin.DisableConsoleColor()
 	r := gin.Default()
 
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"http://localhost:5173"}
+	r.Use(cors.New(config))
 	r.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "ok")
 	})

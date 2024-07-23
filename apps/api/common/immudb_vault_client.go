@@ -190,7 +190,6 @@ func (ic *immudbVaultClient) GetDocuments(ledgerName string, collectionName stri
 		fmt.Println(string(respBody))
 		return nil, fmt.Errorf("failed to add accounting information: %v", resp.Status)
 	}
-	fmt.Println(string(respBody))
 	var result SearchDocumentsResult
 	if err := json.Unmarshal(respBody, &result); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal the response body: %v", err)
