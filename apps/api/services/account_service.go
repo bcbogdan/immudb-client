@@ -83,20 +83,14 @@ func (s *accountService) GetAccountingInformation(query *common.SearchAccounting
 }
 
 func parseQuery(query *common.SearchAccountingInformationQuery) *common.SearchQuery {
-	immudbSearchQuery := common.SearchQuery{
-		Limit: query.Pagination.Limit,
-	}
+	immudbSearchQuery := common.SearchQuery{}
 
 	if query.Filters != nil && len(query.Filters) > 0 {
-		immudbSearchQuery.Expressions = []common.QueryExpression{
-			{
-				FieldComparisons: make([]common.FieldComparison, len(query.Filters)),
-			},
-		}
+		immudbSearchQuery.Expressions = make([]common.QueryExpression, len(query.Filters))
 	}
 
 	for i, filter := range query.Filters {
-		immudbSearchQuery.Expressions[0].FieldComparisons[i] = common.FieldComparison{
+		immudbSearchQuery.Expressions[i] = common.QueryExpression{
 			Value:    filter.Value,
 			Field:    filter.Field,
 			Operator: filter.Operator,

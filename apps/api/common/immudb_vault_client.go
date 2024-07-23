@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"time"
 )
@@ -25,15 +24,12 @@ type CreateCollectionPayload struct {
 	Indexes     []CreateCollectionIndex `json:"indexes"`
 }
 
-type FieldComparison struct {
+type QueryExpression struct {
 	Value    interface{} `json:"value"`
 	Field    string      `json:"field"`
 	Operator string      `json:"operator"`
 }
 
-type QueryExpression struct {
-	FieldComparisons []FieldComparison `json:"fieldComparisions"`
-}
 type QueryOrderBy struct {
 	Field string `json:"field"`
 	Desc  bool   `json:"desc"`
@@ -94,7 +90,6 @@ func (ic *immudbVaultClient) AddDocument(ledgerName string, collectionName strin
 	client := &http.Client{
 		Timeout: time.Second * 10,
 	}
-	log.Println(url)
 	out, err := json.Marshal(document)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal the request body: %v", err)
@@ -122,7 +117,6 @@ func (ic *immudbVaultClient) AddDocument(ledgerName string, collectionName strin
 	if err := json.Unmarshal(respBody, &result); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal the response body: %v", err)
 	}
-	fmt.Println(result)
 	return result, nil
 }
 
@@ -147,16 +141,9 @@ func (ic *immudbVaultClient) CreateCollection(ledgerName string, collectionName 
 		return fmt.Errorf("failed to create the request: %v", err)
 	}
 	defer resp.Body.Close()
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return fmt.Errorf("failed to read the response body: %v", err)
-	}
 	if resp.StatusCode != http.StatusOK {
-		fmt.Println(resp.Status)
-		fmt.Println(string(respBody))
 		return fmt.Errorf("failed to get accounting information: %v", resp.Status)
 	}
-	fmt.Println(string(respBody))
 
 	return err
 }
@@ -170,7 +157,6 @@ func (ic *immudbVaultClient) GetDocuments(ledgerName string, collectionName stri
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal the request body: %v", err)
 	}
-	fmt.Println(string(out))
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(out))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create a new request: %v", err)
@@ -187,8 +173,6 @@ func (ic *immudbVaultClient) GetDocuments(ledgerName string, collectionName stri
 		return nil, fmt.Errorf("failed to read the response body: %v", err)
 	}
 	if resp.StatusCode != http.StatusOK {
-		fmt.Println(resp.Status)
-		fmt.Println(string(respBody))
 		return nil, fmt.Errorf("failed to add accounting information: %v", resp.Status)
 	}
 	var result SearchDocumentsResult
@@ -223,11 +207,8 @@ func (ic *immudbVaultClient) CountDocuments(ledgerName string, collectionName st
 		return nil, fmt.Errorf("failed to read the response body: %v", err)
 	}
 	if resp.StatusCode != http.StatusOK {
-		fmt.Println(resp.Status)
-		fmt.Println(string(respBody))
 		return nil, fmt.Errorf("failed to add accounting information: %v", resp.Status)
 	}
-	fmt.Println(string(respBody))
 	var result CountDocumentsResult
 	if err := json.Unmarshal(respBody, &result); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal the response body: %v", err)
@@ -251,7 +232,6 @@ func (ic *immudbVaultClient) DeleteCollection(ledgerName string, collectionName 
 		return fmt.Errorf("failed to send the request: %v", err)
 	}
 	if resp.StatusCode != http.StatusOK {
-		fmt.Println(resp.Status)
 		return fmt.Errorf("failed to add accounting information: %v", resp.Status)
 	}
 	return nil
