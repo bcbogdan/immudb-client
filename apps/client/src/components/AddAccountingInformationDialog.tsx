@@ -27,7 +27,7 @@ export const AddAccountingInformationDialogTrigger = ({
 }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { mutateAsync } = useMutation({
+  const { mutateAsync, status } = useMutation({
     mutationFn: (accountingInformation: AccountingInformation) => {
       return addAccountingInformation(accountingInformation);
     },
@@ -128,6 +128,11 @@ export const AddAccountingInformationDialogTrigger = ({
             </div>
           </div>
           <DialogFooter>
+            {status === "error" && (
+              <span className="text-destructive">
+                Unable to add accounting information.
+              </span>
+            )}
             <Button type="submit">Submit</Button>
           </DialogFooter>
         </form>

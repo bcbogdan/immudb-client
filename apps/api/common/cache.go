@@ -1,27 +1,41 @@
 package common
 
 import (
+	"encoding/json"
+	"fmt"
+	"time"
+
 	"github.com/patrickmn/go-cache"
 )
 
 type InternalCache struct {
-	keys []string
+	cache     *cache.Cache
+	cacheKeys []string
 }
 
-func NewInternalCache() *InternalCache {
+func NewInternalCache(defaultExpiration time.Duration, cleanupInterval time.Duration) *InternalCache {
 	return &InternalCache{
-		keys: []string{},
+		cache:     cache.New(defaultExpiration, cleanupInterval),
+		cacheKeys: make([]string, 0),
 	}
 }
 
-func (ic *InternalCache) Get(key string) (interface{}, bool) {
-	c := cache.New(cache.NoExpiration, cache.NoExpiration)
-	value, found := c.Get(key)
-	if found {
-		return value, true
-	}
-	return nil, false
+func (ic *InternalCache) Cache(key string, result interface{}) {
+	ic.cache.Set(key, result, cache.DefaultExpiration)
+	ic.cacheKeys = append(ic.cacheKeys, key)
 }
 
-// set cache key with default expiration
-// invalidate all cache keys
+func (ic *InternalCache) InvalidateCache() {
+	for _, key := range ic.cacheKeys {
+		ic.cache.Delete(key)
+	}
+	ic.cacheKeys = make([]string, 0)
+}
+
+func (ic *InternalCache) SerializeArgs(args ...interface{}) (string, error) {
+	argsJson, err := json.Marshal(args)
+	if err != nil {
+		return "", fmt.Errorf("failed to serialize args: %v", err)
+	}
+	return string(argsJson), nil
+}
