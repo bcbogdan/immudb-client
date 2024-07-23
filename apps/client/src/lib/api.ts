@@ -12,6 +12,9 @@ export const addAccountingInformation = async (
     },
     body: JSON.stringify(accountingInformation),
   });
+  if (!response.ok) {
+    throw new Error("Failed to add accounting information");
+  }
   return response.json();
 };
 
@@ -23,6 +26,9 @@ export const getAccountingInformation = async (query: SearchQuery) => {
     },
     body: JSON.stringify(query),
   });
+  if (!response.ok) {
+    throw new Error("Failed to add accounting information");
+  }
   const body = (await response.json()) as {
     data: { rows: AccountingInformation[]; count: number };
   };
@@ -36,5 +42,8 @@ export const resetAccountingInformation = async () => {
       "Content-Type": "application/json",
     },
   });
+  if (!response.ok) {
+    throw new Error("Failed to add accounting information");
+  }
   return response.json();
 };

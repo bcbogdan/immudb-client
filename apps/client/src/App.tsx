@@ -1,27 +1,16 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { debounce } from "remeda";
-import { resetAccountingInformation } from "./lib/api";
 import { SearchQuery } from "./lib/types";
 import { Button } from "./components/ui/Button";
 import { PlusCircleIcon, Trash } from "lucide-react";
 import { AddAccountingInformationDialogTrigger } from "./components/AddAccountingInformationDialog";
-import { SearchAccountingInformationQueryKey } from "./lib/constants";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./components/ui/Tabs";
 import { AccountingInformationTable } from "./components/AccountingInformationTable";
 import { Input } from "./components/ui/Input";
+import { ResetAccountingDataConfirmationModalTrigger } from "./components/ResetAccountingDataConfirmationModal";
 
 function App() {
-  const queryClient = useQueryClient();
   const [accountName, setAccountName] = useState("");
-  const mutation = useMutation({
-    mutationFn: resetAccountingInformation,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [SearchAccountingInformationQueryKey],
-      });
-    },
-  });
   const debouncedOnChangeAccountName = useCallback(
     debounce((e) => setAccountName(e.target.value), { waitMs: 300 }).call,
     [],
@@ -35,9 +24,11 @@ function App() {
           </h1>
         </div>
         <div className="flex items-center space-x-2">
-          <Button onClick={() => mutation.mutate()} variant="outline">
-            <Trash className="mr-2 h-4 w-4" /> Reset
-          </Button>
+          <ResetAccountingDataConfirmationModalTrigger>
+            <Button variant="outline">
+              <Trash className="mr-2 h-4 w-4" /> Reset
+            </Button>
+          </ResetAccountingDataConfirmationModalTrigger>
           <AddAccountingInformationDialogTrigger>
             <Button>
               <PlusCircleIcon className="mr-2 h-4 w-4" />
