@@ -74,6 +74,7 @@ type CountDocumentsResult struct {
 type ImmudbVaultClient interface {
 	AddDocument(ledgerName string, collectionName string, document interface{}) (map[string]interface{}, error)
 	CreateCollection(ledgerName string, collectionName string, collectionPayload CreateCollectionPayload) error
+	DeleteCollection(ledgerName string, collectionName string) error
 	GetDocuments(ledgerName string, collectionName string, searchPayload SearchDocumentsPayload) (*SearchDocumentsResult, error)
 	CountDocuments(ledgerName string, collectionName string, query CountDocumentsPayload) (*CountDocumentsResult, error)
 }
@@ -232,4 +233,26 @@ func (ic *immudbVaultClient) CountDocuments(ledgerName string, collectionName st
 		return nil, fmt.Errorf("failed to unmarshal the response body: %v", err)
 	}
 	return &result, nil
+}
+
+func (ic *immudbVaultClient) DeleteCollection(ledgerName string, collectionName string) error {
+	url := fmt.Sprintf("https://vault.immudb.io/ics/api/v1/ledger/%s/collection/%s", ledgerName, collectionName)
+	client := &http.Client{
+		Timeout: time.Second * 10,
+	}
+	req, err := http.NewRequest("DELETE", url, nil)
+	if err != nil {
+		return fmt.Errorf("failed to create a new request: %v", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-API-KEY", ic.ApiKey)
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("failed to send the request: %v", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		fmt.Println(resp.Status)
+		return fmt.Errorf("failed to add accounting information: %v", resp.Status)
+	}
+	return nil
 }

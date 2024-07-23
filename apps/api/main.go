@@ -24,11 +24,11 @@ func setupRouter() *gin.Engine {
 	})
 
 	accountService := services.NewAccountService()
-	// Ping test
 
 	accountController := infrastructure.NewAccountController(accountService)
 	r.POST("/account", accountController.AddAccountingInformation())
 	r.POST("/account/search", accountController.GetAccountingInformation())
+	r.POST("/account/reset", accountController.ResetAccountingInformation())
 
 	return r
 }

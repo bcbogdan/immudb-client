@@ -16,6 +16,7 @@ var (
 type AccountService interface {
 	AddAccountingInformation(*common.AccountingInformation) error
 	GetAccountingInformation(*common.SearchAccountingInformationQuery) (*common.SearchAccountingInformationResult, error)
+	ResetAccountingInformation() error
 }
 
 type accountService struct{}
@@ -66,7 +67,7 @@ func (s *accountService) GetAccountingInformation(query *common.SearchAccounting
 		return nil, fmt.Errorf("failed to count documents: %v", err)
 	}
 
-	var searchResults []common.AccountingInformation
+	searchResults := make([]common.AccountingInformation, 0)
 	for _, revision := range getDocumentsResponse.Revisions {
 		var accountingInformation common.AccountingInformation
 		mapstructure.Decode(revision.Document, &accountingInformation)
@@ -114,4 +115,57 @@ func parseQuery(query *common.SearchAccountingInformationQuery) *common.SearchQu
 	}
 
 	return &immudbSearchQuery
+}
+
+func (s *accountService) ResetAccountingInformation() error {
+	ledgerName := "default"
+	collectionName := "test"
+
+	apiKey := os.Getenv("IMMUDB_API_KEY")
+	immudbClient := common.NewImmudbVaultClient(apiKey)
+
+	err := immudbClient.DeleteCollection(ledgerName, collectionName)
+	if err != nil {
+		return fmt.Errorf("failed to delete collection: %v", err)
+	}
+	createPayload := common.CreateCollectionPayload{
+		IdFieldName: "id",
+		Fields: []common.CreateCollectionField{
+			{
+				Name: "accountNumber",
+				Type: "STRING",
+			},
+			{
+				Name: "accountName",
+				Type: "STRING",
+			},
+			{
+				Name: "iban",
+				Type: "STRING",
+			},
+			{
+				Name: "address",
+				Type: "STRING",
+			},
+			{
+				Name: "type",
+				Type: "STRING",
+			},
+			{
+				Name: "amount",
+				Type: "DOUBLE",
+			},
+		},
+		Indexes: []common.CreateCollectionIndex{
+			{
+				Fields:   []string{"accountNumber"},
+				IsUnique: true,
+			},
+		},
+	}
+	err = immudbClient.CreateCollection(ledgerName, collectionName, createPayload)
+	if err != nil {
+		return fmt.Errorf("failed to create collection: %v", err)
+	}
+	return nil
 }

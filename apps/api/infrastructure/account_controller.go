@@ -60,3 +60,16 @@ func (ac *AccountController) GetAccountingInformation() gin.HandlerFunc {
 		}
 	}
 }
+
+func (ac *AccountController) ResetAccountingInformation() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		err := ac.accountService.ResetAccountingInformation()
+		if err != nil {
+			c.JSON(400, gin.H{
+				"error": err.Error(),
+			})
+		} else {
+			c.JSON(200, gin.H{})
+		}
+	}
+}
