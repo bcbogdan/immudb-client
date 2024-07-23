@@ -32,9 +32,7 @@ func (ac *AccountController) AddAccountingInformation() gin.HandlerFunc {
 				"error": err.Error(),
 			})
 		} else {
-			c.JSON(200, gin.H{
-				"message": "ok",
-			})
+			c.JSON(200, gin.H{})
 		}
 	}
 }

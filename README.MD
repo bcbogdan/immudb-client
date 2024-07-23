@@ -22,11 +22,95 @@ IMMUDB_LEDGER_NAME=default
 ## Go API
 
 This is my first attempt at building a go api. So, probably most of the code doesn't follow best practices.
-But the way it's structured kind of maps the way I think of a backend service.
+But the way it's structured kind of maps the way I think of a backend service in terms of a general mental model.
 - infrastructure: contains entities that initiate an operation (api controllers, task runners, cron jobs, etc)
 - services: the main business logic of the app. isolated from other external concerns. 
 - repositories: *this one's not in the project since it felt kind of redundant here. But, If I were to extend this with additional business logic, 
 there would probably be an `AccountRepository` that would perform the actual `ImmudbVaultClient` calls in order to isolate even more the persistence layer.
+
+
+### Routes
+
+#### AddAccountingInformation
+- POST /account
+- curl example
+```bash
+curl -X POST http://localhost:8080/account -H "Content-Type: application/json" -d '{"accountNumber":"123456789123","accountName":"Test Account","iban":"IBAN","address":"123 Street","type":"sending","amount":100}'
+```
+- Sample Request body
+```json
+{
+  "accountNumber": "123456789123",
+  "accountName": "Test Account",
+  "iban": "IBAN",
+  "address": "123 Street",
+  "type": "sending",
+  "amount": 100
+}
+```
+- Response body
+```json
+{}
+```
+
+#### GetAccountingInformation
+- POST /account/search
+- curl example
+```bash
+curl -X POST http://localhost:8080/account/search -H "Content-Type: application/json" -d '{"pagination":{"page":1,"limit":10}}'
+```
+- Request body
+```json
+{
+  "filters": [
+    {
+      "field": "accountNumber",
+      "operator": "LIKE",
+      "value": "123456789123"
+    }
+  ],
+  "sorting": [
+    {
+      "field": "accountNumber",
+      "order": "asc"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10
+  }
+}
+```
+
+- Response body
+```json
+{
+  "data": {
+    "count": 1,
+    "rows": [
+      {
+        "accountNumber": "123456789123",
+        "accountName": "Test Account",
+        "iban": "IBAN",
+        "address": "123 Street",
+        "type": "sending",
+        "amount": 100
+      }
+    ]
+  }
+}
+```
+
+#### ResetAccountingInformation
+- POST /account/reset
+- curl example
+```bash
+curl -X POST http://localhost:8080/account/reset
+```
+- Response body
+```json
+{}
+```
 
 
 ## React Client
