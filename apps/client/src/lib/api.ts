@@ -28,3 +28,13 @@ export const getAccountingInformation = async (query: SearchQuery) => {
   };
   return body.data;
 };
+
+export const resetAccountingInformation = async () => {
+  const response = await fetch(`${API_ENDPOINT}/account/reset`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response.json();
+};

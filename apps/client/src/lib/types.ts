@@ -9,7 +9,7 @@ export type AccountingInformation = {
 
 export type SearchQuery = {
   filters?: {
-    fields: string;
+    field: string;
     operator: "LE" | "LT" | "GE" | "GT" | "EQ" | "NEQ" | "LIKE";
     value: unknown;
   }[];
