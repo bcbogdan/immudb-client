@@ -99,7 +99,6 @@ func (ic *immudbVaultClient) AddDocument(ledgerName string, collectionName strin
 		return nil, fmt.Errorf("failed to create a new request: %v", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	fmt.Printf("API_KEY %s \n", ic.ApiKey)
 	req.Header.Set("X-API-KEY", ic.ApiKey)
 	resp, err := client.Do(req)
 	if err != nil {
