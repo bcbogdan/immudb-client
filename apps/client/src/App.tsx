@@ -22,8 +22,6 @@ function App() {
       });
     },
   });
-
-  console.log(accountName);
   const debouncedOnChangeAccountName = useCallback(
     debounce((e) => setAccountName(e.target.value), { waitMs: 300 }).call,
     [],

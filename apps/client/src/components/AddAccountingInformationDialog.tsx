@@ -27,7 +27,7 @@ export const AddAccountingInformationDialogTrigger = ({
 }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { mutateAsync, status, error } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: (accountingInformation: AccountingInformation) => {
       return addAccountingInformation(accountingInformation);
     },
@@ -36,7 +36,7 @@ export const AddAccountingInformationDialogTrigger = ({
         queryKey: [SearchAccountingInformationQueryKey],
       }),
   });
-  const onSubmit = useCallback(async (e) => {
+  const onSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
     const accountingInformation = {} as AccountingInformation;

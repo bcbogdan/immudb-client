@@ -3,14 +3,8 @@ package services
 import (
 	"api/common"
 	"fmt"
-	"os"
 
 	"github.com/mitchellh/mapstructure"
-)
-
-var (
-	API_KEY         = os.Getenv("IMMUDB_API_KEY")
-	COLLECTION_NAME = os.Getenv("IMMUDB_COLLECTION_NAME")
 )
 
 type AccountService interface {
@@ -19,19 +13,22 @@ type AccountService interface {
 	ResetAccountingInformation() error
 }
 
-type accountService struct{}
+type accountService struct {
+	immudbVaultClient common.ImmudbVaultClient
+	collectionName    string
+	ledgerName        string
+}
 
-func NewAccountService() AccountService {
-	return &accountService{}
+func NewAccountService(immudbVaultCient common.ImmudbVaultClient, collectionName string, ledgerName string) AccountService {
+	return &accountService{
+		immudbVaultClient: immudbVaultCient,
+		collectionName:    collectionName,
+		ledgerName:        ledgerName,
+	}
 }
 
 func (s *accountService) AddAccountingInformation(accountingInformation *common.AccountingInformation) error {
-	ledgerName := "default"
-	collectionName := "test"
-
-	apiKey := os.Getenv("IMMUDB_API_KEY")
-	immudbClient := common.NewImmudbVaultClient(apiKey)
-	_, err := immudbClient.AddDocument(ledgerName, collectionName, accountingInformation)
+	_, err := s.immudbVaultClient.AddDocument(s.ledgerName, s.collectionName, accountingInformation)
 	if err != nil {
 		fmt.Println(err)
 		return fmt.Errorf("failed to add accounting information: %v", err)
@@ -40,19 +37,13 @@ func (s *accountService) AddAccountingInformation(accountingInformation *common.
 }
 
 func (s *accountService) GetAccountingInformation(query *common.SearchAccountingInformationQuery) (*common.SearchAccountingInformationResult, error) {
-	ledgerName := "default"
-	collectionName := "test"
-
-	apiKey := os.Getenv("IMMUDB_API_KEY")
-	immudbClient := common.NewImmudbVaultClient(apiKey)
-
 	parsedQuery := parseQuery(query)
 	searchPayload := common.SearchDocumentsPayload{
 		Query:   *parsedQuery,
 		Page:    query.Pagination.Page,
 		PerPage: query.Pagination.Limit,
 	}
-	getDocumentsResponse, err := immudbClient.GetDocuments(ledgerName, collectionName, searchPayload)
+	getDocumentsResponse, err := s.immudbVaultClient.GetDocuments(s.ledgerName, s.collectionName, searchPayload)
 	if err != nil {
 		fmt.Println(err)
 		return nil, fmt.Errorf("failed to search documents: %v", err)
@@ -61,7 +52,7 @@ func (s *accountService) GetAccountingInformation(query *common.SearchAccounting
 	countPayload := common.CountDocumentsPayload{
 		Query: *parsedQuery,
 	}
-	countDocumentsResponse, err := immudbClient.CountDocuments(ledgerName, collectionName, countPayload)
+	countDocumentsResponse, err := s.immudbVaultClient.CountDocuments(s.ledgerName, s.collectionName, countPayload)
 	if err != nil {
 		fmt.Println(err)
 		return nil, fmt.Errorf("failed to count documents: %v", err)
@@ -112,13 +103,7 @@ func parseQuery(query *common.SearchAccountingInformationQuery) *common.SearchQu
 }
 
 func (s *accountService) ResetAccountingInformation() error {
-	ledgerName := "default"
-	collectionName := "test"
-
-	apiKey := os.Getenv("IMMUDB_API_KEY")
-	immudbClient := common.NewImmudbVaultClient(apiKey)
-
-	err := immudbClient.DeleteCollection(ledgerName, collectionName)
+	err := s.immudbVaultClient.DeleteCollection(s.ledgerName, s.collectionName)
 	if err != nil {
 		return fmt.Errorf("failed to delete collection: %v", err)
 	}
@@ -157,7 +142,7 @@ func (s *accountService) ResetAccountingInformation() error {
 			},
 		},
 	}
-	err = immudbClient.CreateCollection(ledgerName, collectionName, createPayload)
+	err = s.immudbVaultClient.CreateCollection(s.ledgerName, s.collectionName, createPayload)
 	if err != nil {
 		return fmt.Errorf("failed to create collection: %v", err)
 	}

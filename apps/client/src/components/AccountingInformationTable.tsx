@@ -18,8 +18,6 @@ import {
   PaginationContent,
   PaginationItem,
   PaginationPrevious,
-  PaginationLink,
-  PaginationEllipsis,
   PaginationNext,
 } from "./ui/Pagination";
 import { formatCurrency } from "@/lib/utils";

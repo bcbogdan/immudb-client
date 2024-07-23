@@ -1,10 +1,12 @@
 package main
 
 import (
+	"api/common"
 	"api/infrastructure"
 	"api/services"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -23,7 +25,11 @@ func setupRouter() *gin.Engine {
 		c.String(http.StatusOK, "ok")
 	})
 
-	accountService := services.NewAccountService()
+	ledgerName := "default"
+	collectionName := "test"
+	apiKey := os.Getenv("IMMUDB_API_KEY")
+	immudbVaultClient := common.NewImmudbVaultClient(apiKey)
+	accountService := services.NewAccountService(immudbVaultClient, collectionName, ledgerName)
 
 	accountController := infrastructure.NewAccountController(accountService)
 	r.POST("/account", accountController.AddAccountingInformation())
