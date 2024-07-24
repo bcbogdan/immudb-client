@@ -29,6 +29,11 @@ But the way it's structured kind of maps the way I think of a backend service in
 there would probably be an `AccountRepository` that would perform the actual `ImmudbVaultClient` calls in order to isolate even more the persistence layer.
 
 
+## Initial Setup
+
+If you want to run the app on a new collection you will first have to call the `ResetAccountingInformation` endpoint to reset everything and setup the new schema.
+
+
 ### Routes
 
 #### AddAccountingInformation
