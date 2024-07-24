@@ -50,7 +50,11 @@ export const ResetAccountingDataConfirmationModalTrigger = ({
             <Button variant="ghost" onClick={() => setIsModalOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" onClick={() => onSubmit}>
+            <Button
+              disabled={mutation.isPending}
+              type="submit"
+              onClick={() => onSubmit}
+            >
               Confirm
             </Button>
           </DialogFooter>

@@ -10,7 +10,7 @@ import { SearchQuery } from "@/lib/types";
 import { useMemo, useCallback, useState } from "react";
 import { getAccountingInformation } from "@/lib/api";
 import { SearchAccountingInformationQueryKey } from "@/lib/constants";
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "./ui/Button";
 import { AddAccountingInformationDialogTrigger } from "./AddAccountingInformationDialog";
 import {
@@ -42,13 +42,14 @@ export const AccountingInformationTable = ({
 
   const { status, data, isLoading, refetch } = useQuery({
     queryFn: () => getAccountingInformation(query),
+    retry: false,
     queryKey: [
       SearchAccountingInformationQueryKey,
       `${SearchAccountingInformationQueryKey}-${JSON.stringify(query)}`,
     ],
-    initialData: { count: 0, rows: [] },
-    placeholderData: keepPreviousData,
   });
+  const rows = data?.rows ?? [];
+  const count = data?.count ?? 0;
   return (
     <div className="flex flex-1 flex-col">
       <Table>
@@ -63,14 +64,14 @@ export const AccountingInformationTable = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {status !== "error" && data.rows.length
-            ? data.rows.map((row) => (
+          {status !== "error" && rows.length
+            ? rows.map((row) => (
                 <TableRow key={row.accountNumber}>
                   <TableCell>{row.accountNumber}</TableCell>
-                  <TableCell className="overflow-hidden max-w-20 whitespace-nowrap overflow-ellipsis">
+                  <TableCell className="overflow-hidden max-w-15 whitespace-nowrap overflow-ellipsis">
                     {row.accountName}
                   </TableCell>
-                  <TableCell className="overflow-hidden max-w-20 whitespace-nowrap overflow-ellipsis">
+                  <TableCell className="overflow-hidden max-w-22 whitespace-nowrap overflow-ellipsis">
                     {row.iban}
                   </TableCell>
                   <TableCell className="overflow-hidden max-w-20 whitespace-nowrap overflow-ellipsis">
@@ -80,6 +81,35 @@ export const AccountingInformationTable = ({
                   <TableCell>{formatCurrency(row.amount)}</TableCell>
                 </TableRow>
               ))
+            : null}
+          {isLoading
+            ? Array(pagination.limit)
+                .fill(null)
+                .map((_, i) => (
+                  <TableRow key={`skeletion-${i}`}>
+                    <TableCell>
+                      <div className="h-5 animate-pulse rounded-md bg-muted" />
+                    </TableCell>
+                    <TableCell>
+                      <div className="h-5 animate-pulse rounded-md bg-muted" />
+                    </TableCell>
+                    <TableCell>
+                      <div className="h-5 animate-pulse rounded-md bg-muted" />
+                    </TableCell>
+                    <TableCell>
+                      <div className="h-5 animate-pulse rounded-md bg-muted" />
+                    </TableCell>
+                    <TableCell>
+                      <div className="h-5 animate-pulse rounded-md bg-muted" />
+                    </TableCell>
+                    <TableCell>
+                      <div className="h-5 animate-pulse rounded-md bg-muted" />
+                    </TableCell>
+                    <TableCell>
+                      <div className="h-5 animate-pulse rounded-md bg-muted" />
+                    </TableCell>
+                  </TableRow>
+                ))
             : null}
         </TableBody>
       </Table>
@@ -110,7 +140,7 @@ export const AccountingInformationTable = ({
       !isLoading &&
       !query?.filters &&
       !query?.filters?.length &&
-      !data.rows.length ? (
+      !rows.length ? (
         <div className="flex flex-1 min-h-[50vh] flex-col items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-md text-center">
             <div className="mx-auto h-12 w-12 text-primary" />
@@ -134,15 +164,15 @@ export const AccountingInformationTable = ({
       {status !== "error" ? (
         <div className="mt-auto align-center flex flex-row justify-between">
           <span className="text-muted-foreground flex items-center">
-            {data.count < pagination.limit
-              ? `Showing ${data.count} rows`
-              : `Showing ${pagination.limit} out of ${data.count} rows`}
+            {count < pagination.limit
+              ? `Showing ${count} rows`
+              : `Showing ${pagination.limit} out of ${count} rows`}
           </span>
           <TablePagination
             onChangePagination={setPagination}
             page={pagination.page}
             limit={pagination.limit}
-            count={data.count}
+            count={count}
           />
         </div>
       ) : null}
