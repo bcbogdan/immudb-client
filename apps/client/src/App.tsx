@@ -41,14 +41,18 @@ function App() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>File Name</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Size</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {/* @ts-expect-error */}
               {rows.map((row) => (
-                <TableRow key={row.name}>
+                <TableRow key={row.path}>
                   <TableCell>{row.name}</TableCell>
+                  <TableCell>{row.mimeType}</TableCell>
+                  <TableCell>{formatFileSize(row.size)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -57,6 +61,16 @@ function App() {
       </div>
     </div>
   );
+}
+
+function formatFileSize(bytes: number) {
+  const units = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+  if (bytes === 0) return "0 B";
+
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  const size = parseFloat((bytes / Math.pow(1024, i)).toFixed(2));
+
+  return `${size} ${units[i]}`;
 }
 
 export default App;

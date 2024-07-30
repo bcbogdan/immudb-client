@@ -42,3 +42,10 @@ type SearchAccountingInformationResult struct {
 	Rows  []AccountingInformation `json:"rows"`
 	Count int                     `json:"count"`
 }
+
+type FileObject struct {
+	MimeType string `json:"mimeType"`
+	Path     string `json:"id"`
+	Name     string `json:"name"`
+	Size     int64  `json:"size"`
+}

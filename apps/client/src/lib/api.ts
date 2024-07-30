@@ -49,7 +49,7 @@ export const resetAccountingInformation = async () => {
 };
 
 export const listFiles = async () => {
-  const response = await fetch(`http://localhost:3000/file`, {
+  const response = await fetch(`${API_ENDPOINT}/file`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -64,7 +64,7 @@ export const listFiles = async () => {
 export const uploadFile = async (file: File) => {
   const formData = new FormData();
   formData.append("file", file);
-  const response = await fetch(`http://localhost:3000/file/upload`, {
+  const response = await fetch(`${API_ENDPOINT}/file/upload`, {
     method: "POST",
     body: formData,
   });
