@@ -1,6 +1,6 @@
-import { addAccountingInformation, uploadFile } from "@/lib/api";
+import { uploadFile } from "@/lib/api";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
-import { useState, useCallback, useRef } from "react";
+import { useCallback, useRef } from "react";
 import { FilesQueryKey } from "@/lib/constants";
 import { Slot } from "@radix-ui/react-slot";
 
@@ -9,8 +9,9 @@ export const FileUploadModalTrigger = ({
 }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient();
   const ref = useRef<HTMLInputElement>(null);
-  const { mutateAsync, isPending, error } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: (file) => {
+      // @ts-expect-error
       return uploadFile(file);
     },
     onSuccess: () =>
@@ -18,6 +19,7 @@ export const FileUploadModalTrigger = ({
         queryKey: [FilesQueryKey],
       }),
   });
+  // @ts-expect-error
   const onChange = useCallback(async (e) => {
     const { files } = e.target;
     if (!files || files.length === 0) {
@@ -25,7 +27,7 @@ export const FileUploadModalTrigger = ({
     }
     const file = files[0];
     try {
-      const result = await mutateAsync(file);
+      await mutateAsync(file);
     } catch (error) {
       console.error(error);
     }

@@ -22,5 +22,15 @@ services:
     networks:
       - app-network
 
+  file-upload:
+    build:
+      context: ./apps/file-upload
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+
 networks:
   app-network:

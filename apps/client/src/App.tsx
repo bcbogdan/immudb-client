@@ -1,7 +1,5 @@
-import { useCallback, useState } from "react";
-import { SearchQuery } from "./lib/types";
 import { Button } from "./components/ui/Button";
-import { PlusCircleIcon, UploadIcon } from "lucide-react";
+import { UploadIcon } from "lucide-react";
 import { FileUploadModalTrigger } from "./components/FileUploadModal";
 import {
   TableHeader,
@@ -11,18 +9,12 @@ import {
   Table,
   TableCell,
 } from "./components/ui/Table";
-import { formatCurrency } from "./lib/utils";
 import { listFiles } from "./lib/api";
 import { useQuery } from "@tanstack/react-query";
-import {
-  FilesQueryKey,
-  SearchAccountingInformationQueryKey,
-} from "./lib/constants";
+import { FilesQueryKey } from "./lib/constants";
 
 function App() {
-  const [accountName, setAccountName] = useState("");
-
-  const { status, data, isLoading, refetch } = useQuery({
+  const { data } = useQuery({
     queryFn: () => listFiles(),
     retry: false,
     queryKey: [FilesQueryKey],
@@ -53,6 +45,7 @@ function App() {
               </TableRow>
             </TableHeader>
             <TableBody>
+              {/* @ts-expect-error */}
               {rows.map((row) => (
                 <TableRow key={row.name}>
                   <TableCell>{row.name}</TableCell>
@@ -65,21 +58,5 @@ function App() {
     </div>
   );
 }
-
-const parseFilters = (
-  accountName: string,
-  _baseFilters?: SearchQuery["filters"],
-): SearchQuery["filters"] => {
-  const baseFilters = _baseFilters ? _baseFilters : [];
-  if (accountName) {
-    baseFilters.push({
-      field: "accountName",
-      operator: "LIKE",
-      value: accountName,
-    });
-  }
-
-  return baseFilters;
-};
 
 export default App;
