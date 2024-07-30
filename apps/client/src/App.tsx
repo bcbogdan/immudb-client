@@ -1,13 +1,7 @@
 import { useCallback, useState } from "react";
-import { debounce } from "remeda";
 import { SearchQuery } from "./lib/types";
 import { Button } from "./components/ui/Button";
-import { PlusCircleIcon, Trash } from "lucide-react";
-import { AddAccountingInformationDialogTrigger } from "./components/AddAccountingInformationDialog";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "./components/ui/Tabs";
-import { AccountingInformationTable } from "./components/AccountingInformationTable";
-import { Input } from "./components/ui/Input";
-import { ResetAccountingDataConfirmationModalTrigger } from "./components/ResetAccountingDataConfirmationModal";
+import { PlusCircleIcon, UploadIcon } from "lucide-react";
 import { FileUploadModalTrigger } from "./components/FileUploadModal";
 import {
   TableHeader,
@@ -44,8 +38,8 @@ function App() {
         <div className="flex items-center space-x-2">
           <FileUploadModalTrigger>
             <Button>
-              <PlusCircleIcon className="mr-2 h-4 w-4" />
-              Add
+              <UploadIcon className="mr-2 h-4 w-4" />
+              Upload
             </Button>
           </FileUploadModalTrigger>
         </div>
