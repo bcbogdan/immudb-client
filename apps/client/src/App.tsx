@@ -8,80 +8,65 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "./components/ui/Tabs";
 import { AccountingInformationTable } from "./components/AccountingInformationTable";
 import { Input } from "./components/ui/Input";
 import { ResetAccountingDataConfirmationModalTrigger } from "./components/ResetAccountingDataConfirmationModal";
+import { FileUploadModalTrigger } from "./components/FileUploadModal";
+import {
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  Table,
+  TableCell,
+} from "./components/ui/Table";
+import { formatCurrency } from "./lib/utils";
+import { listFiles } from "./lib/api";
+import { useQuery } from "@tanstack/react-query";
+import {
+  FilesQueryKey,
+  SearchAccountingInformationQueryKey,
+} from "./lib/constants";
 
 function App() {
   const [accountName, setAccountName] = useState("");
-  const debouncedOnChangeAccountName = useCallback(
-    debounce((e) => setAccountName(e.target.value), { waitMs: 300 }).call,
-    [],
-  );
+
+  const { status, data, isLoading, refetch } = useQuery({
+    queryFn: () => listFiles(),
+    retry: false,
+    queryKey: [FilesQueryKey],
+  });
+
+  const rows = data?.files || [];
   return (
     <div className="h-full flex flex-1 flex-col space-y-8 p-8 md:flex">
       <div className="flex items-center justify-between space-y-2">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            Accounting Information
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tight">Uploaded Files</h1>
         </div>
         <div className="flex items-center space-x-2">
-          <ResetAccountingDataConfirmationModalTrigger>
-            <Button variant="outline">
-              <Trash className="mr-2 h-4 w-4" /> Reset
-            </Button>
-          </ResetAccountingDataConfirmationModalTrigger>
-          <AddAccountingInformationDialogTrigger>
+          <FileUploadModalTrigger>
             <Button>
               <PlusCircleIcon className="mr-2 h-4 w-4" />
               Add
             </Button>
-          </AddAccountingInformationDialogTrigger>
+          </FileUploadModalTrigger>
         </div>
       </div>
       <div className="flex flex-1 gap-4">
-        <Tabs className="flex-1 flex flex-col" defaultValue="all">
-          <div className="flex flex-row gap-5">
-            <TabsList>
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="sending">Sending</TabsTrigger>
-              <TabsTrigger value="receiving">Receiving</TabsTrigger>
-            </TabsList>
-            <div className="flex flex-1 items-center space-x-2">
-              <Input
-                placeholder="Search by account name..."
-                onChange={debouncedOnChangeAccountName}
-                className="h-10 w-[150px] lg:w-[250px]"
-              />
-            </div>
-          </div>
-          <div className="flex-1 flex flex-col">
-            <TabsContent
-              className="data-[state=active]:flex-1 flex"
-              value="all"
-            >
-              <AccountingInformationTable filters={parseFilters(accountName)} />
-            </TabsContent>
-            <TabsContent
-              className="data-[state=active]:flex-1 flex"
-              value="sending"
-            >
-              <AccountingInformationTable
-                filters={parseFilters(accountName, [
-                  { field: "type", operator: "EQ", value: "sending" },
-                ])}
-              />
-            </TabsContent>
-            <TabsContent
-              className="data-[state=active]:flex-1 flex"
-              value="receiving"
-            >
-              <AccountingInformationTable
-                filters={parseFilters(accountName, [
-                  { field: "type", operator: "EQ", value: "receiving" },
-                ])}
-              />
-            </TabsContent>
-          </div>
-        </Tabs>
+        <div className="flex flex-1 flex-col">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>File Name</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((row) => (
+                <TableRow key={row.name}>
+                  <TableCell>{row.name}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   );

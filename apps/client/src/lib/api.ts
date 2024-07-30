@@ -47,3 +47,29 @@ export const resetAccountingInformation = async () => {
   }
   return response.json();
 };
+
+export const listFiles = async () => {
+  const response = await fetch(`http://localhost:3000/file`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (!response.ok) {
+    throw new Error("Failed to add accounting information");
+  }
+  return response.json();
+};
+
+export const uploadFile = async (file: File) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await fetch(`http://localhost:3000/file/upload`, {
+    method: "POST",
+    body: formData,
+  });
+  if (!response.ok) {
+    throw new Error("Failed to upload file");
+  }
+  return response.json();
+};
