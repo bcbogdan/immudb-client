@@ -2,58 +2,49 @@ package infrastructure
 
 import (
 	"api/common"
-	"api/services"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type FileController struct {
-	accountService services.AccountService
+	fileService common.FileService
 }
 
-func NewFileController(accountService services.AccountService) *AccountController {
-	return &AccountController{
-		accountService: accountService,
+func NewFileController(fileService common.FileService) *FileController {
+	return &FileController{
+		fileService: fileService,
 	}
 }
 
-func (ac *AccountController) UploadFile() gin.HandlerFunc {
+func (fc *FileController) UploadFile() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var accountInformation common.AccountingInformation
-		if err := c.ShouldBindJSON(&accountInformation); err != nil {
-			c.JSON(400, gin.H{
-				"error": err.Error(),
-			})
+		file, err := c.FormFile("file")
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "No file is received"})
 			return
 		}
-		err := ac.accountService.AddAccountingInformation(&accountInformation)
+		fileObject, err := fc.fileService.Upload(file)
 		if err != nil {
 			c.JSON(400, gin.H{
 				"error": err.Error(),
 			})
 		} else {
-			c.JSON(200, gin.H{})
+			c.JSON(200, gin.H{"file": fileObject})
 		}
 	}
 }
 
-func (ac *AccountController) ListFiles() gin.HandlerFunc {
+func (fc *FileController) ListFiles() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var searchAccountingInformationQuery common.SearchAccountingInformationQuery
-		if err := c.ShouldBindJSON(&searchAccountingInformationQuery); err != nil {
-			c.JSON(400, gin.H{
-				"error": err.Error(),
-			})
-			return
-		}
-		result, err := ac.accountService.GetAccountingInformation(&searchAccountingInformationQuery)
+		result, err := fc.fileService.List()
 		if err != nil {
 			c.JSON(400, gin.H{
 				"error": err.Error(),
 			})
 		} else {
 			c.JSON(200, gin.H{
-				"data": result,
+				"files": result,
 			})
 		}
 	}

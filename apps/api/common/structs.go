@@ -1,5 +1,7 @@
 package common
 
+import "mime/multipart"
+
 type TransactionType string
 
 const (
@@ -48,4 +50,10 @@ type FileObject struct {
 	Path     string `json:"id"`
 	Name     string `json:"name"`
 	Size     int64  `json:"size"`
+}
+
+type FileService interface {
+	Upload(*multipart.FileHeader) (*FileObject, error)
+	Download(string) (FileObject, error)
+	List() ([]FileObject, error)
 }
